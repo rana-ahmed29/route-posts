@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "@heroui/styles"; 
+
+@theme {
+
+  --color-main :#18288D;
+}
+body {
+  font-family: "Cairo", sans-serif;
+background-color: #f0f2f5;
+}
