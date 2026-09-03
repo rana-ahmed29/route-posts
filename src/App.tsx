@@ -7,7 +7,7 @@ import Notfound from "./pages/Notfound/Notfound";
 import AuthLayout from "./layouts/AuthLayout";
 import MainLayout from "./layouts/MainLayout";
 import  AppProtectedRoutes from "./components/ProtectedRoutes/AppProtectedRoutes";
-import AuthProtectedRotes from "./components/ProtectedRoutes/AuthProtectedRotes";
+import AuthProtectedRoutes from "./components/ProtectedRoutes/AuthProtectedRoutes";
 import Notifications from "./pages/Notifications/Notifications";
 
 import PostDetails from "./pages/PostDetails/PostDetails";
@@ -17,9 +17,9 @@ export default function App() {
     {
       path: "/auth",
       element: (
-        <AuthProtectedRotes>
+        <AuthProtectedRoutes>
           <AuthLayout />
-        </AuthProtectedRotes>
+        </AuthProtectedRoutes>
       ),
       children: [
         { index: true, element: <Navigate to={"Login"} /> },

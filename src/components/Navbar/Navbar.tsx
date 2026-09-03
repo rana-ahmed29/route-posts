@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useContext } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation } from "react-router";
 import {
   House,
   User,
@@ -12,12 +12,11 @@ import routePNG from "../../assets/hero.png";
 import { authContext } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { token, setToken } = useContext(authContext)!;
+  const { setToken } = useContext(authContext)!;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
-  const navigate = useNavigate();
 
   function logoutUser() {
     localStorage.removeItem("userToken");
@@ -44,7 +43,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur">
       {/* matches MainLayout's max-w-[1400px] so the navbar content
           lines up exactly with the page content below it */}
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-2 px-2 py-2 sm:gap-3 sm:px-3">
+      <div className="mx-auto flex max-w-350 items-center justify-between gap-2 px-2 py-2 sm:gap-3 sm:px-3">
         <Link to="/feed" className="flex items-center gap-3">
           <img
             alt="Route Posts"
@@ -95,7 +94,7 @@ export default function Navbar() {
               className="h-8 w-8 rounded-full object-cover"
               src="https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png"
             />
-            <span className="hidden max-w-[140px] truncate text-sm font-semibold text-slate-800 md:block">
+            <span className="hidden max-w-35 truncate text-sm font-semibold text-slate-800 md:block">
               Rana Ahmed
             </span>
             <Menu size={15} className="text-slate-500" />

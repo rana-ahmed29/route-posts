@@ -1,8 +1,9 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
+
 import { authContext } from "../context/AuthContext";
 
-export default function AppProtectedRoutes({
+export default function AuthProtectedRoutes({
   children,
 }: {
   children: React.ReactNode;
@@ -11,8 +12,8 @@ export default function AppProtectedRoutes({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!token) {
-      navigate("/auth/login");
+    if (token) {
+      navigate("/");
     }
   }, [token, navigate]);
 
