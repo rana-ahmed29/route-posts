@@ -14,3 +14,19 @@ export interface PostI {
     };
   };
 }
+
+export interface UserPostsI {
+  success: boolean;
+  message: string;
+  data: {
+    posts: PostCardI[];
+  };
+  meta: {
+    pagination: {
+      currentPage: number;
+      numberOfPages: number;
+      limit: number;
+      total: number;
+    };
+  };
+}

@@ -6,7 +6,7 @@ export default function MainLayout() {
     <>
       <Navbar />
 
-      <div className="mx-auto max-w-[1400px] px-3 py-3.5">
+      <div className="mx-auto max-w-325 px-3 py-3.5">
         <main className="min-w-0">
           <Outlet />
         </main>

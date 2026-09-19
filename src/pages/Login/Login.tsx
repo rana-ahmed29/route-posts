@@ -7,6 +7,7 @@ import {
   Spinner,
   Alert,
 } from "@heroui/react";
+import usePageTitle from "../../hooks/usePageTitle";
 import { User, KeyRound } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,13 +19,14 @@ import {
 import { loginUser } from "../../services/auth.services";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { authContext } from "../../components/context/AuthContext";
+import { authContext } from "../../context/AuthContext";
 
 const inputClass =
   "w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-[#00298d] focus:bg-white";
 
 export default function Login() {
-  const {setToken}=useContext(authContext)!
+  usePageTitle("Login");
+  const { setToken } = useContext(authContext)!;
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -51,7 +53,7 @@ export default function Login() {
       const response = await loginUser(formData);
       setSuccessMsg(response.data.message);
       console.log(response);
-      localStorage.setItem("userToken",response.data.data.token)
+      localStorage.setItem("userToken", response.data.data.token);
       setToken(response.data.data.token);
       setIsSuccess(true);
     } catch (error: any) {
@@ -69,7 +71,7 @@ export default function Login() {
   }, [isSuccess, navigate]);
 
   return (
-    <section className="w-full max-w-[430px] lg:min-w-[430px]">
+    <section className="w-full max-w-107.5 lg:min-w-107.5">
       <div className="rounded-2xl bg-white p-4 sm:p-6 ">
         <div className="mb-4 text-center lg:hidden">
           <h1 className="text-3xl font-extrabold tracking-tight text-[#00298d]">

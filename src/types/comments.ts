@@ -1,5 +1,3 @@
-
-
 import type { CommentCreator } from "./postCard";
 
 export interface CommentLike {
@@ -9,6 +7,7 @@ export interface CommentLike {
   createdAt: string;
   likes?: string[];
   likesCount?: number;
+  isLiked?: boolean; // added: used by the like button on each comment
   commentCreator: CommentCreator;
 }
 

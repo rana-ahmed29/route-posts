@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PostCard from "../../components/PostCard/PostCard";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import SuggestionsSidebar from "../../components/SuggestionsSidebar/SuggestionsSidebar";
-import { getNewsFeed } from "../../services/newsfeed.services";
+import { getAllPosts } from "../../services/posts.services";
 import type { PostCardI } from "../../types/postCard";
 import PostCardSkeleton from "../../components/PostCard/PostSkeleton";
 import AddPost from "../../components/PostCard/AddPost";
@@ -16,15 +16,15 @@ type PendingPost = {
   progress: number;
 };
 
-export default function Newsfeed() {
-  usePageTitle("Home Feed")
+export default function Community() {
+     usePageTitle("Community");
   const [posts, setPosts] = useState<PostCardI[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [pendingPost, setPendingPost] = useState<PendingPost | null>(null);
 
   async function getPosts() {
     try {
-      const { data } = await getNewsFeed();
+      const { data } = await getAllPosts();
       const posts: PostCardI[] = data.data.posts;
       setPosts(posts);
     } catch (error) {
@@ -48,7 +48,7 @@ export default function Newsfeed() {
         <SuggestionsSidebar />
       </div>
 
-      <section aria-label="Posts feed" className="space-y-4  xl:order-2">
+      <section aria-label="Community posts" className="space-y-4  xl:order-2">
         <AddPost
           refatchPosts={getPosts}
           onPendingPost={setPendingPost}
@@ -65,6 +65,10 @@ export default function Newsfeed() {
 
         {isLoading ? (
           <PostCardSkeleton />
+        ) : posts.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm font-semibold text-slate-500 shadow-sm">
+            No posts to show yet.
+          </div>
         ) : (
           posts.map((post) => (
             <PostCard key={post._id} post={post} refatchPosts={getPosts} />

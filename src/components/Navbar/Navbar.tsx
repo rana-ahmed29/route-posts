@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect, useContext } from "react";
+
 import { Link, useLocation } from "react-router";
+
+import NavbarSkeleton from "./NavbarSkeleton";
+
 import {
   House,
   User,
@@ -8,10 +12,13 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+
 import routePNG from "../../assets/hero.png";
-import { authContext } from "../context/AuthContext";
+import { authContext } from "../../context/AuthContext";
+import { userContext } from "../../context/UserContext";
 
 export default function Navbar() {
+  const { userData } = useContext(userContext);
   const { setToken } = useContext(authContext)!;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,8 +36,12 @@ export default function Navbar() {
         setIsMenuOpen(false);
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const navLinks = [
@@ -41,26 +52,28 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur">
-      {/* matches MainLayout's max-w-[1400px] so the navbar content
-          lines up exactly with the page content below it */}
-      <div className="mx-auto flex max-w-350 items-center justify-between gap-2 px-2 py-2 sm:gap-3 sm:px-3">
+      <div className="mx-auto flex max-w-325 items-center justify-between gap-2 px-2 py-2 sm:gap-3 sm:px-3">
+        {/* Logo */}
         <Link to="/feed" className="flex items-center gap-3">
           <img
             alt="Route Posts"
             className="h-9 w-9 rounded-xl object-cover"
             src={routePNG}
           />
+
           <p className="hidden text-xl font-extrabold text-slate-900 sm:block">
             Route Posts
           </p>
         </Link>
 
+        {/* Navigation */}
         <nav
           aria-label="Main navigation"
           className="flex min-w-0 items-center gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50/90 px-1 py-1 sm:px-1.5"
         >
           {navLinks.map(({ to, label, icon: Icon }) => {
             const isActive = pathname === to;
+
             return (
               <Link
                 key={to}
@@ -75,6 +88,7 @@ export default function Navbar() {
                 <span className="relative">
                   <Icon size={20} />
                 </span>
+
                 <span className="hidden sm:inline">{label}</span>
                 <span className="sr-only sm:hidden">{label}</span>
               </Link>
@@ -82,51 +96,62 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* User menu */}
         <div className="relative" ref={menuRef}>
-          <button
-            type="button"
-            aria-label="Open user menu"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1.5 transition hover:bg-slate-100"
-          >
-            <img
-              alt="Rana Ahmed"
-              className="h-8 w-8 rounded-full object-cover"
-              src="https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png"
-            />
-            <span className="hidden max-w-35 truncate text-sm font-semibold text-slate-800 md:block">
-              Rana Ahmed
-            </span>
-            <Menu size={15} className="text-slate-500" />
-          </button>
-
-          {isMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-              <Link
-                to="/profile"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              >
-                <User size={16} />
-                Profile
-              </Link>
-              <Link
-                to="/settings"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              >
-                <Settings size={16} />
-                Settings
-              </Link>
+          {!userData ? (
+            <NavbarSkeleton />
+          ) : (
+            <>
               <button
                 type="button"
-                onClick={logoutUser}
-                className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                aria-label="Open user menu"
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1.5 transition hover:bg-slate-100"
               >
-                <LogOut size={16} />
-                Logout
+                <img
+                  alt={userData.name}
+                  className="h-8 w-8 rounded-full object-cover"
+                  src={userData.photo}
+                />
+
+                <span className="hidden max-w-35 truncate text-sm font-semibold text-slate-800 md:block">
+                  {userData.name}
+                </span>
+
+                <Menu size={15} className="text-slate-500" />
               </button>
-            </div>
+
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                  >
+                    <User size={16} />
+                    Profile
+                  </Link>
+
+                  <Link
+                    to="/settings"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                  >
+                    <Settings size={16} />
+                    Settings
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={logoutUser}
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
