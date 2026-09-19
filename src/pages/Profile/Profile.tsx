@@ -24,6 +24,9 @@ import { Link } from "react-router";
 import AdjustProfilePhotoModal from "./AdjustProfilePhotoModal";
 import usePageTitle from "../../hooks/usePageTitle";
 
+const DEFAULT_AVATAR =
+  "https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png";
+
 type ProfileTab = "myPosts" | "saved";
 
 function formatPostTime(dateString: string) {
@@ -153,10 +156,7 @@ export default function Profile() {
                       <img
                         alt={userData.name}
                         className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md ring-2 ring-[#dbeafe]"
-                        src={
-                          userData.photo ||
-                          "https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png"
-                        }
+                        src={userData.photo || DEFAULT_AVATAR}
                       />
                     </button>
                     <button
@@ -318,7 +318,13 @@ export default function Profile() {
                       <img
                         alt={post.user?.name}
                         className="h-10 w-10 rounded-full object-cover"
-                        src="https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png"
+                        src={
+                          ((activeTab === "myPosts" ||
+                            post.user?._id === userData._id) &&
+                            userData.photo) ||
+                          post.user?.photo ||
+                          DEFAULT_AVATAR
+                        }
                       />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-extrabold text-slate-900">
@@ -410,10 +416,7 @@ export default function Profile() {
           </button>
 
           <img
-            src={
-              userData.photo ||
-              "https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png"
-            }
+            src={userData.photo || DEFAULT_AVATAR}
             alt={userData.name}
             className="max-h-[85vh] max-w-[85vw] rounded-xl object-contain"
             onClick={(e) => e.stopPropagation()}
