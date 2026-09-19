@@ -1,75 +1,107 @@
-# React + TypeScript + Vite
+# Route Posts
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A social media web app — feed, posts, comments, likes, bookmarks, notifications, and profile management — built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## API reference
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built against the [Route Posts API](https://route-posts.routemisr.com/#docs) — "a complete social API learning playground with professional docs, clear endpoint contracts, and fast testing workflow," provided by Route Academy. That page covers Auth & Users, Feed & Timeline, Comments & Mentions, and Notifications, plus links to the Postman documentation and a live API demo.
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Auth** — sign up, log in, change password (with refreshed-token handling)
+- **Feed** — personalized home feed of posts from people you follow
+- **Community** — all public posts platform-wide
+- **Posts** — create, edit, delete, like/unlike, bookmark/unbookmark, share
+- **Comments** — create, edit, delete, like/unlike, reply
+- **My Posts** — your own posts in one place
+- **Saved** — posts you've bookmarked
+- **Profile** — cover/profile photo upload with an interactive crop-and-zoom modal, followers/following/bookmarks stats
+- **Notifications** — likes, comments, shares, and follows, with read/unread state and mark-all-as-read
+- **Settings** — change password with client-side validation
 
-## Expanding the ESLint configuration
+## Tech stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vite.dev/) for dev server and builds
+- [React Router](https://reactrouter.com/) for routing
+- React's built-in [Context API](https://react.dev/reference/react/createContext) for global state — auth token (`AuthContext`) and current user data (`UserContext`)
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+- [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) for form validation
+- [Axios](https://axios-http.com/) for API requests
+- [HeroUI](https://heroui.com/) for accessible UI primitives (dropdowns, buttons)
+- [lucide-react](https://lucide.dev/) for icons
+- [emoji-picker-react](https://www.npmjs.com/package/emoji-picker-react) for comment emoji input
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js
+- A running instance of the Route Posts API (see [Environment variables](#environment-variables))
 
+### Clone
+
+```bash
+git clone https://github.com/rana-ahmed29/Route-Posts.git
+cd Route-Posts
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Installation
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm install
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Environment variables
+
+Create a `.env.local` file in the project root:
 
 ```
+VITE_BASE_URL=https://route-posts.routemisr.com
+```
+
+### Development
+
+```bash
+npm run dev
+```
+
+Starts the Vite dev server with hot module replacement.
+
+### Build
+
+```bash
+npm run build
+```
+
+Type-checks and builds a production bundle into `dist/`.
+
+### Preview
+
+```bash
+npm run preview
+```
+
+Serves the production build locally for a final check before deploying.
+
+## Project structure
+
+```
+src/
+  components/       # shared components (PostCard, CommentsList, Navbar, Sidebar, ...)
+  layouts/          # AuthLayout, MainLayout
+  lib/schema/       # Zod validation schemas
+  pages/            # route-level pages (Feed, Profile, Settings, Notifications, ...)
+  services/         # API calls, grouped by resource (posts, comments, auth, notifications, profile)
+  types/            # shared TypeScript types matching API response shapes
+  App.tsx           # route definitions
+  main.tsx          # app entry point
+```
+
+## Linting
+
+```bash
+npm run lint
+```
+
+Uses ESLint with TypeScript-aware rules. See `eslint.config.js` to adjust or extend the ruleset.
