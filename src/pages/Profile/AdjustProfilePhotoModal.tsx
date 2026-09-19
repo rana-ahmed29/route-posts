@@ -8,8 +8,22 @@ interface AdjustProfilePhotoModalProps {
   onSave: (croppedFile: File, privacy: Privacy) => Promise<void> | void;
 }
 
-const FRAME_SIZE = 320;
+const MAX_FRAME_SIZE = 320;
+const MIN_FRAME_SIZE = 200;
 const EXPORT_SIZE = 512;
+
+/*
+ * The frame can't just always be 320px — on a narrow phone, 320px plus the
+ * modal's own padding plus the backdrop's padding is wider than the screen.
+ * This shrinks the frame to fit, down to a sane minimum.
+ */
+function computeFrameSize() {
+  if (typeof window === "undefined") return MAX_FRAME_SIZE;
+  // reserve room for: backdrop p-4 (32px) + modal p-4/sm:p-5 (~40px) on both sides
+  const reserved = 96;
+  const available = window.innerWidth - reserved;
+  return Math.max(MIN_FRAME_SIZE, Math.min(MAX_FRAME_SIZE, available));
+}
 
 export default function AdjustProfilePhotoModal({
   file,
@@ -36,6 +50,8 @@ export default function AdjustProfilePhotoModal({
 
   const [isDragging, setIsDragging] = useState(false);
 
+  const [frameSize, setFrameSize] = useState(computeFrameSize);
+
   const dragStart = useRef({
     x: 0,
     y: 0,
@@ -45,6 +61,19 @@ export default function AdjustProfilePhotoModal({
     x: 0,
     y: 0,
   });
+
+  /*
+   * Recompute the frame size if the viewport is resized while the
+   * modal is open (e.g. rotating a phone), and re-clamp the current
+   * pan offset since the allowed movement range changes with it.
+   */
+  useEffect(() => {
+    function handleResize() {
+      setFrameSize(computeFrameSize());
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   /*
    * Load selected image.
@@ -89,7 +118,7 @@ export default function AdjustProfilePhotoModal({
 
   /*
    * Calculate the minimum scale required
-   * to completely cover the 320x320 frame.
+   * to completely cover the frame.
    *
    * Math.max() means:
    *
@@ -99,7 +128,7 @@ export default function AdjustProfilePhotoModal({
    * The extra part will be cropped.
    */
   const baseScale = naturalSize
-    ? Math.max(FRAME_SIZE / naturalSize.w, FRAME_SIZE / naturalSize.h)
+    ? Math.max(frameSize / naturalSize.w, frameSize / naturalSize.h)
     : 1;
 
   /*
@@ -110,19 +139,19 @@ export default function AdjustProfilePhotoModal({
   /*
    * Final displayed image dimensions.
    */
-  const displayedW = naturalSize ? naturalSize.w * scale : FRAME_SIZE;
+  const displayedW = naturalSize ? naturalSize.w * scale : frameSize;
 
-  const displayedH = naturalSize ? naturalSize.h * scale : FRAME_SIZE;
+  const displayedH = naturalSize ? naturalSize.h * scale : frameSize;
 
   /*
    * Maximum horizontal movement.
    */
-  const maxOffsetX = Math.max(0, (displayedW - FRAME_SIZE) / 2);
+  const maxOffsetX = Math.max(0, (displayedW - frameSize) / 2);
 
   /*
    * Maximum vertical movement.
    */
-  const maxOffsetY = Math.max(0, (displayedH - FRAME_SIZE) / 2);
+  const maxOffsetY = Math.max(0, (displayedH - frameSize) / 2);
 
   /*
    * Keep image inside the frame.
@@ -136,21 +165,29 @@ export default function AdjustProfilePhotoModal({
   }
 
   /*
+   * Re-clamp whenever the frame size changes (window resized) so the
+   * image doesn't end up positioned outside the now-smaller frame.
+   */
+  useEffect(() => {
+    setOffset((prev) => clamp(prev.x, prev.y));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frameSize, naturalSize, zoom]);
+
+  /*
    * Zoom handler.
    */
   function handleZoomChange(newZoom: number) {
     const nextScale = naturalSize
-      ? Math.max(FRAME_SIZE / naturalSize.w, FRAME_SIZE / naturalSize.h) *
-        newZoom
+      ? Math.max(frameSize / naturalSize.w, frameSize / naturalSize.h) * newZoom
       : newZoom;
 
-    const nextW = naturalSize ? naturalSize.w * nextScale : FRAME_SIZE;
+    const nextW = naturalSize ? naturalSize.w * nextScale : frameSize;
 
-    const nextH = naturalSize ? naturalSize.h * nextScale : FRAME_SIZE;
+    const nextH = naturalSize ? naturalSize.h * nextScale : frameSize;
 
-    const nextMaxX = Math.max(0, (nextW - FRAME_SIZE) / 2);
+    const nextMaxX = Math.max(0, (nextW - frameSize) / 2);
 
-    const nextMaxY = Math.max(0, (nextH - FRAME_SIZE) / 2);
+    const nextMaxY = Math.max(0, (nextH - frameSize) / 2);
 
     setZoom(newZoom);
 
@@ -230,9 +267,9 @@ export default function AdjustProfilePhotoModal({
 
   /*
    * Export exactly what the user sees
-   * inside the 320x320 frame.
+   * inside the frame.
    *
-   * Output = 512x512 PNG.
+   * Output = 512x512 PNG, regardless of the on-screen frame size.
    */
   function exportCroppedImage(): Promise<File> {
     return new Promise((resolve, reject) => {
@@ -260,10 +297,10 @@ export default function AdjustProfilePhotoModal({
         }
 
         /*
-         * Convert 320px preview coordinates
-         * to 512px export coordinates.
+         * Convert on-screen preview coordinates (frameSize) to
+         * EXPORT_SIZE export coordinates.
          */
-        const ratio = EXPORT_SIZE / FRAME_SIZE;
+        const ratio = EXPORT_SIZE / frameSize;
 
         /*
          * Image size in exported canvas.
@@ -275,9 +312,9 @@ export default function AdjustProfilePhotoModal({
         /*
          * Image position in exported canvas.
          */
-        const exportLeft = ((FRAME_SIZE - displayedW) / 2 + offset.x) * ratio;
+        const exportLeft = ((frameSize - displayedW) / 2 + offset.x) * ratio;
 
-        const exportTop = ((FRAME_SIZE - displayedH) / 2 + offset.y) * ratio;
+        const exportTop = ((frameSize - displayedH) / 2 + offset.y) * ratio;
 
         /*
          * Draw image.
@@ -311,7 +348,7 @@ export default function AdjustProfilePhotoModal({
 
   return (
     <div className="fixed inset-0 z-90 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-140 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:p-5">
+      <div className="max-h-[90vh] w-full max-w-140 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:p-5">
         {/* Header */}
         <div className="mb-3">
           <h3 className="text-lg font-extrabold text-slate-900">
@@ -324,14 +361,19 @@ export default function AdjustProfilePhotoModal({
         </div>
 
         {/* Preview */}
-        <div className="mx-auto h-[320px] w-[320px]">
+        <div
+          className="mx-auto"
+          style={{ height: `${frameSize}px`, width: `${frameSize}px` }}
+        >
           <div
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
-            className="relative h-[320px] w-[320px] touch-none overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200"
+            className="relative touch-none overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200"
             style={{
+              height: `${frameSize}px`,
+              width: `${frameSize}px`,
               cursor: isDragging ? "grabbing" : "grab",
             }}
           >
