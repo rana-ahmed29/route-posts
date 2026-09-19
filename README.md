@@ -2,6 +2,8 @@
 
 A social media web app — feed, posts, comments, likes, bookmarks, notifications, and profile management — built with React, TypeScript, and Vite.
 
+**🔗 Live demo:** [route-posts-pink.vercel.app](https://route-posts-pink.vercel.app/auth/login)
+
 ## API reference
 
 Built against the [Route Posts API](https://route-posts.routemisr.com/#docs) — "a complete social API learning playground with professional docs, clear endpoint contracts, and fast testing workflow," provided by Route Academy. That page covers Auth & Users, Feed & Timeline, Comments & Mentions, and Notifications, plus links to the Postman documentation and a live API demo.
